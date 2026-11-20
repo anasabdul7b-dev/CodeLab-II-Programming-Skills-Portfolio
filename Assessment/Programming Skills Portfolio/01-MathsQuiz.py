@@ -8,7 +8,9 @@ win.geometry("400x280")
 
 # tracking quiz stuff
 mode = ""
+q = 0
 score = 0
+try_num = 1
 n1 = 0
 n2 = 0
 sign = "+"
@@ -51,14 +53,21 @@ def decideOperation():
 
 
 def begin(m):
-    global mode, score
+    global mode, q, score
     mode = m
+    q = 0
     score = 0
     make_q()
 
 
 def make_q():
-    global n1, n2, sign, right_ans
+    global q, try_num, n1, n2, sign, right_ans
+    if q == 10:
+        displayResults()
+        return
+
+    q += 1
+    try_num = 1  # reset attempts for new question
     n1, n2 = randomInt(mode)
     sign = decideOperation()
 
@@ -74,12 +83,13 @@ def displayProblem():
     global inp, err_lbl
     wipe()
 
-    tk.Label(win, text=f"Score: {score}").pack(pady=8)
+    tk.Label(win, text=f"Question {q}/10 | Score: {score}").pack(pady=8)
     tk.Label(win, text=f"{n1} {sign} {n2} =", font=("Arial", 18, "bold")).pack(pady=10)
 
     inp = tk.Entry(win, width=10, justify="center")
     inp.pack(pady=5)
     inp.focus()
+    inp.bind("<Return>", lambda e: send_ans())  # so enter key works too
 
     tk.Button(win, text="Submit", width=12, command=send_ans).pack(pady=8)
 
@@ -88,11 +98,24 @@ def displayProblem():
 
 
 def isCorrect(guess):
-    global score
+    global score, try_num
+
     if guess == right_ans:
-        score += 10
-        messagebox.showinfo("Nice", "+10 points")
+        if try_num == 1:
+            score += 10
+            messagebox.showinfo("Nice", "+10 points")
+        else:
+            score += 5
+            messagebox.showinfo("Nice", "+5 points")
         return True
+
+    # give one retry if they miss the first time
+    if try_num == 1:
+        try_num = 2
+        err_lbl.config(text="Try again!", fg="orange")
+        inp.delete(0, tk.END)
+        inp.focus()
+        return False
 
     messagebox.showinfo("Wrong", f"Answer was {right_ans}")
     return True
@@ -107,8 +130,31 @@ def send_ans():
         err_lbl.config(text="Enter a valid number", fg="red")
         return
 
-    if isCorrect(num):
+    done = isCorrect(num)
+    if done:
         make_q()
+
+
+def displayResults():
+    wipe()
+
+    if score > 90:
+        grade = "A+"
+    elif score >= 80:
+        grade = "A"
+    elif score >= 70:
+        grade = "B"
+    elif score >= 60:
+        grade = "C"
+    else:
+        grade = "D"
+
+    tk.Label(win, text="Finished!", font=("Arial", 15, "bold")).pack(pady=12)
+    tk.Label(win, text=f"Score: {score}/100", font=("Arial", 12)).pack(pady=4)
+    tk.Label(win, text=f"Rank: {grade}", font=("Arial", 12)).pack(pady=4)
+
+    tk.Button(win, text="Play Again", width=14, command=displayMenu).pack(pady=10)
+    tk.Button(win, text="Quit", width=14, command=win.destroy).pack()
 
 
 displayMenu()
