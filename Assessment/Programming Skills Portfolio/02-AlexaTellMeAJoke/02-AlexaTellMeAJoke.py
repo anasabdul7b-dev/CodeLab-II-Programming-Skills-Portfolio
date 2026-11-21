@@ -15,3 +15,15 @@ for row in raw_lines:
     if "?" in row:
         part = row.split("?")
         jokes.append([part[0] + "?", part[1]])
+
+win = tk.Tk()
+win.title("Alexa Joke Teller")
+win.geometry("450x300")
+
+punch = "" # keeps the punchline for the current joke
+
+q_lbl = tk.Label(win, text="", font=("Arial", 12, "bold"), wraplength=380)
+q_lbl.pack(pady=20)
+
+a_lbl = tk.Label(win, text="", font=("Arial", 11), fg="darkblue", wraplength=380)
+a_lbl.pack(pady=10)
