@@ -98,6 +98,8 @@ def show_lowest():
     if not students:
         show_output("No student records found.")
         return
+
+    # same idea as highest, just looking for smaller pct
     low = students[0]
     for s in students:
         if get_pct(s) < get_pct(low):
@@ -106,20 +108,40 @@ def show_lowest():
     show_output("Lowest Score:\n" + make_row(low))
 
 
+def sort_students():
+    if not students:
+        show_output("No student records found.")
+        return
+
+    order = simpledialog.askstring("Sort Records", "Type 'asc' or 'desc':")
+    if not order:
+        return
+
+    order = order.strip().lower()
+    if order == "asc":
+        # make a sorted copy so the original list stays untouched unless needed
+        ordered = sorted(students, key=get_pct)
+    elif order == "desc":
+        ordered = sorted(students, key=get_pct, reverse=True)
+    else:
+        messagebox.showwarning("Invalid Choice", "Please type asc or desc.")
+        return
+
+    msg = f"Sorted ({order}):\n"
+    for s in ordered:
+        msg += make_row(s) + "\n"
+    show_output(msg)
+
+
 # basic gui setup
 root = tk.Tk()
 root.title("Student Manager")
-root.geometry("760x400")
+root.geometry("800x430")
 
-btn_frame = tk.Frame(root)
-btn_frame.pack(pady=8)
+row1 = tk.Frame(root)
+row1.pack(pady=5)
 
-tk.Button(btn_frame, text="View All", width=15, command=view_all).pack(side=tk.LEFT, padx=3)
-tk.Button(btn_frame, text="View Individual", width=15, command=view_one).pack(side=tk.LEFT, padx=3)
-tk.Button(btn_frame, text="Highest Score", width=15, command=show_highest).pack(side=tk.LEFT, padx=3)
-tk.Button(btn_frame, text="Lowest Score", width=15, command=show_lowest).pack(side=tk.LEFT, padx=3)
-
-output_box = tk.Text(root, height=17, width=90, font=("Consolas", 10))
-output_box.pack(padx=10, pady=4)
-
-root.mainloop()
+tk.Button(row1, text="View All", width=15, command=view_all).pack(side=tk.LEFT, padx=3)
+tk.Button(row1, text="View Individual", width=15, command=view_one).pack(side=tk.LEFT, padx=3)
+tk.Button(row1, text="Highest Score", width=15, command=show_highest).pack(side=tk.LEFT, padx=3)
+tk.Button(row1, text="Lowest Score", width=15, command=show_lowest).pack(
