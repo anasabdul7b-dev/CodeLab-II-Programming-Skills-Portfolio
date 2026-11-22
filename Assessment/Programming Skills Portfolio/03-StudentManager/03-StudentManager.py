@@ -21,7 +21,7 @@ for line in lines:
 
 
 def get_pct(s):
-    
+    # coursework is 60 + exam is 100 = 160 total
     return ((s[2] + s[3]) / 160) * 100
 
 
@@ -45,7 +45,7 @@ def make_row(s):
 
 
 def show_output(text):
-    # cleared box first so old stuff stays gone
+    # clear box first so old stuff stays gone
     output_box.delete("1.0", tk.END)
     output_box.insert(tk.END, text)
 
@@ -80,6 +80,32 @@ def view_one():
     messagebox.showinfo("Not Found", "Couldn't find that student.")
 
 
+def show_highest():
+    if not students:
+        show_output("No student records found.")
+        return
+
+    # start with first student and swap if someone has a higher pct
+    top = students[0]
+    for s in students:
+        if get_pct(s) > get_pct(top):
+            top = s
+
+    show_output("Highest Score:\n" + make_row(top))
+
+
+def show_lowest():
+    if not students:
+        show_output("No student records found.")
+        return
+    low = students[0]
+    for s in students:
+        if get_pct(s) < get_pct(low):
+            low = s
+
+    show_output("Lowest Score:\n" + make_row(low))
+
+
 # basic gui setup
 root = tk.Tk()
 root.title("Student Manager")
@@ -88,8 +114,10 @@ root.geometry("760x400")
 btn_frame = tk.Frame(root)
 btn_frame.pack(pady=8)
 
-tk.Button(btn_frame, text="View All", width=16, command=view_all).pack(side=tk.LEFT, padx=4)
-tk.Button(btn_frame, text="View Individual", width=16, command=view_one).pack(side=tk.LEFT, padx=4)
+tk.Button(btn_frame, text="View All", width=15, command=view_all).pack(side=tk.LEFT, padx=3)
+tk.Button(btn_frame, text="View Individual", width=15, command=view_one).pack(side=tk.LEFT, padx=3)
+tk.Button(btn_frame, text="Highest Score", width=15, command=show_highest).pack(side=tk.LEFT, padx=3)
+tk.Button(btn_frame, text="Lowest Score", width=15, command=show_lowest).pack(side=tk.LEFT, padx=3)
 
 output_box = tk.Text(root, height=17, width=90, font=("Consolas", 10))
 output_box.pack(padx=10, pady=4)
