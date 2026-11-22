@@ -62,6 +62,14 @@ def show_output(text):
     output_box.insert(tk.END, text)
 
 
+def find_student(query):
+    q = query.strip().lower()
+    for s in students:
+        if str(s[0]) == q or s[1].lower() == q:
+            return s
+    return None
+
+
 def view_all():
     if not students:
         show_output("No student records found.")
@@ -83,13 +91,11 @@ def view_one():
     if not query:
         return
 
-    q = query.strip().lower()
-    for s in students:
-        if str(s[0]) == q or s[1].lower() == q:
-            show_output(make_row(s))
-            return
-
-    messagebox.showinfo("Not Found", "Couldn't find that student.")
+    s = find_student(query)
+    if s:
+        show_output(make_row(s))
+    else:
+        messagebox.showinfo("Not Found", "Couldn't find that student.")
 
 
 def show_highest():
@@ -165,6 +171,60 @@ def add_student():
     view_all()
 
 
+def delete_student():
+    query = simpledialog.askstring("Delete Student", "Enter name or student code:")
+    if not query:
+        return
+
+    s = find_student(query)
+    if not s:
+        messagebox.showinfo("Not Found", "Couldn't find that student.")
+        return
+
+    # remove from list and update the txt file
+    students.remove(s)
+    save_data()
+    view_all()
+
+
+def update_student():
+    query = simpledialog.askstring("Update Student", "Enter name or student code:")
+    if not query:
+        return
+
+    s = find_student(query)
+    if not s:
+        messagebox.showinfo("Not Found", "Couldn't find that student.")
+        return
+
+    choice = simpledialog.askstring("Update Field", "Update what? (name, cw, exam)")
+    if not choice:
+        return
+
+    choice = choice.strip().lower()
+    try:
+        if choice == "name":
+            new_name = simpledialog.askstring("Update Name", "New name:")
+            if new_name and new_name.strip():
+                s[1] = new_name.strip()
+        elif choice == "cw":
+            c1 = int(simpledialog.askstring("Coursework", "CW 1 (0-20):"))
+            c2 = int(simpledialog.askstring("Coursework", "CW 2 (0-20):"))
+            c3 = int(simpledialog.askstring("Coursework", "CW 3 (0-20):"))
+            s[2] = c1 + c2 + c3
+        elif choice == "exam":
+            s[3] = int(simpledialog.askstring("Exam", "New exam mark (0-100):"))
+        else:
+            messagebox.showwarning("Invalid Choice", "Type name, cw, or exam.")
+            return
+    except Exception:
+        messagebox.showwarning("Input Error", "Enter a valid number.")
+        return
+
+    save_data()
+    view_all()
+
+
 # basic gui setup
 root = tk.Tk()
 root.title("Student Manager")
@@ -183,6 +243,8 @@ row2.pack(pady=3)
 
 tk.Button(row2, text="Sort Records", width=15, command=sort_students).pack(side=tk.LEFT, padx=3)
 tk.Button(row2, text="Add Student", width=15, command=add_student).pack(side=tk.LEFT, padx=3)
+tk.Button(row2, text="Delete Student", width=15, command=delete_student).pack(side=tk.LEFT, padx=3)
+tk.Button(row2, text="Update Student", width=15, command=update_student).pack(side=tk.LEFT, padx=3)
 
 output_box = tk.Text(root, height=18, width=94, font=("Consolas", 10))
 output_box.pack(padx=10, pady=6)
