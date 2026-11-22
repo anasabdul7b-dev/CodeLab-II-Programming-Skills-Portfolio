@@ -20,6 +20,18 @@ for line in lines:
         students.append([int(parts[0]), parts[1], cw_sum, int(parts[5])])
 
 
+def save_data():
+    # write count first so the file format stays the same as the original
+    f = open(marks_file, "w")
+    f.write(str(len(students)) + "\n")
+    for s in students:
+        # split cw total back into 3 pieces roughly so the txt file stays valid
+        each = s[2] // 3
+        rem = s[2] % 3
+        f.write(f"{s[0]},{s[1]},{each},{each},{each + rem},{s[3]}\n")
+    f.close()
+
+
 def get_pct(s):
     # coursework is 60 + exam is 100 = 160 total
     return ((s[2] + s[3]) / 160) * 100
@@ -119,7 +131,6 @@ def sort_students():
 
     order = order.strip().lower()
     if order == "asc":
-        # make a sorted copy so the original list stays untouched unless needed
         ordered = sorted(students, key=get_pct)
     elif order == "desc":
         ordered = sorted(students, key=get_pct, reverse=True)
@@ -133,6 +144,27 @@ def sort_students():
     show_output(msg)
 
 
+def add_student():
+    try:
+        code = int(simpledialog.askstring("Add Student", "Student code (1000-9999):"))
+        name = simpledialog.askstring("Add Student", "Student name:").strip()
+        c1 = int(simpledialog.askstring("Add Student", "Coursework 1 (0-20):"))
+        c2 = int(simpledialog.askstring("Add Student", "Coursework 2 (0-20):"))
+        c3 = int(simpledialog.askstring("Add Student", "Coursework 3 (0-20):"))
+        exam = int(simpledialog.askstring("Add Student", "Exam mark (0-100):"))
+    except Exception:
+        messagebox.showwarning("Input Error", "Check your numbers and try again.")
+        return
+
+    if not name or code < 1000 or code > 9999:
+        messagebox.showwarning("Input Error", "Need a valid name and 4-digit code.")
+        return
+
+    students.append([code, name, c1 + c2 + c3, exam])
+    save_data()
+    view_all()
+
+
 # basic gui setup
 root = tk.Tk()
 root.title("Student Manager")
@@ -144,4 +176,15 @@ row1.pack(pady=5)
 tk.Button(row1, text="View All", width=15, command=view_all).pack(side=tk.LEFT, padx=3)
 tk.Button(row1, text="View Individual", width=15, command=view_one).pack(side=tk.LEFT, padx=3)
 tk.Button(row1, text="Highest Score", width=15, command=show_highest).pack(side=tk.LEFT, padx=3)
-tk.Button(row1, text="Lowest Score", width=15, command=show_lowest).pack(
+tk.Button(row1, text="Lowest Score", width=15, command=show_lowest).pack(side=tk.LEFT, padx=3)
+
+row2 = tk.Frame(root)
+row2.pack(pady=3)
+
+tk.Button(row2, text="Sort Records", width=15, command=sort_students).pack(side=tk.LEFT, padx=3)
+tk.Button(row2, text="Add Student", width=15, command=add_student).pack(side=tk.LEFT, padx=3)
+
+output_box = tk.Text(root, height=18, width=94, font=("Consolas", 10))
+output_box.pack(padx=10, pady=6)
+
+root.mainloop()
