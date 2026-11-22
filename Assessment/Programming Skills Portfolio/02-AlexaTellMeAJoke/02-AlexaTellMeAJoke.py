@@ -20,7 +20,7 @@ win = tk.Tk()
 win.title("Alexa Joke Teller")
 win.geometry("450x300")
 
-punch = "" # keeps the punchline for the current joke
+punch = "" # keeping the punchline for the current joke
 
 q_lbl = tk.Label(win, text="", font=("Arial", 12, "bold"), wraplength=380)
 q_lbl.pack(pady=20)
@@ -33,7 +33,7 @@ def new_joke():
     j = random.choice(jokes)
     q_lbl.config(text=j[0])
     punch = j[1]
-    a_lbl.config(text="") # hide old punchline
+    a_lbl.config(text="") # hid old punchlines
 
 def show_ans():
     if punch != "":
